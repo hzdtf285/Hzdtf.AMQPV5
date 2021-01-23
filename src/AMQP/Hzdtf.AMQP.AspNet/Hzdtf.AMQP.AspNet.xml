@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Hzdtf.AMQP.AspNet</name>
+    </assembly>
+    <members>
+        <member name="T:Hzdtf.AMQP.AspNet.AmqpConfigConfiguration">
+            <summary>
+            AMQP配置来自微软配置对象里
+            @ 黄振东
+            </summary>
+        </member>
+        <member name="M:Hzdtf.AMQP.AspNet.AmqpConfigConfiguration.#ctor(System.String,System.Action{Microsoft.Extensions.Configuration.IConfigurationBuilder,System.String,System.Object})">
+            <summary>
+            构造方法
+            </summary>
+            <param name="jsonFile">json文件</param>
+            <param name="beforeConfigurationBuilder">配置生成前回调</param>
+        </member>
+        <member name="M:Hzdtf.AMQP.AspNet.AmqpConfigConfiguration.#ctor(Hzdtf.AMQP.Model.Config.AmqpConfigInfo,System.Action{Microsoft.Extensions.Configuration.IConfigurationBuilder,System.String,System.Object})">
+            <summary>
+            构造方法
+            </summary>
+            <param name="options">配置</param>
+            <param name="beforeConfigurationBuilder">配置生成前回调</param>
+        </member>
+    </members>
+</doc>
