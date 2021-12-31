@@ -208,6 +208,11 @@
             异常处理
             </summary>
         </member>
+        <member name="F:Hzdtf.Rabbit.Impl.Core.RabbitConsumer.jsonSerialization">
+            <summary>
+            JSON序列化
+            </summary>
+        </member>
         <member name="M:Hzdtf.Rabbit.Impl.Core.RabbitConsumer.#ctor(RabbitMQ.Client.IModel,Hzdtf.AMQP.Model.Config.AmqpQueueInfo,Hzdtf.Logger.Contract.ILogable,Hzdtf.AMQP.Contract.Core.IExceptionHandle)">
             <summary>
             构造方法
@@ -232,6 +237,14 @@
             </summary>
             <typeparam name="T">接收类型</typeparam>
             <param name="receiveMessageFun">接收消息回调</param>
+            <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
+        </member>
+        <member name="M:Hzdtf.Rabbit.Impl.Core.RabbitConsumer.Subscribe(System.Func{System.Object,System.Boolean},System.Type,System.Boolean)">
+            <summary>
+            订阅消息
+            </summary>
+            <param name="receiveMessageFun">接收消息回调</param>
+            <param name="receiveMessageType">接收消息类型</param>
             <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
         </member>
         <member name="M:Hzdtf.Rabbit.Impl.Core.RabbitConsumer.Subscribe(System.Func{System.Byte[],System.Boolean},System.Boolean)">
@@ -358,12 +371,18 @@
             异常处理生产者字典；key：生产者，value：路由键
             </summary>
         </member>
-        <member name="M:Hzdtf.Rabbit.Impl.Core.RabbitExceptionHandle.#ctor(Hzdtf.AMQP.Model.Config.AmqpQueueInfo,Hzdtf.Logger.Contract.ILogable)">
+        <member name="F:Hzdtf.Rabbit.Impl.Core.RabbitExceptionHandle.bytesSerialization">
+            <summary>
+            字节流序列化
+            </summary>
+        </member>
+        <member name="M:Hzdtf.Rabbit.Impl.Core.RabbitExceptionHandle.#ctor(Hzdtf.AMQP.Model.Config.AmqpQueueInfo,Hzdtf.Logger.Contract.ILogable,Hzdtf.Utility.Data.IBytesSerialization)">
             <summary>
             构造方法
             </summary>
             <param name="amqpQueue">AMQP队列信息</param>
             <param name="log">日志</param>
+            <param name="bytesSerialization">字节流序列化</param>
         </member>
         <member name="M:Hzdtf.Rabbit.Impl.Core.RabbitExceptionHandle.InitExceptionHandle">
             <summary>

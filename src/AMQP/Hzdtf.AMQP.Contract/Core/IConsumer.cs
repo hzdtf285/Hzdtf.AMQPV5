@@ -40,6 +40,14 @@ namespace Hzdtf.AMQP.Contract.Core
         /// 订阅消息
         /// </summary>
         /// <param name="receiveMessageFun">接收消息回调</param>
+        /// <param name="receiveMessageType">接收消息类型</param>
+        /// <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
+        void Subscribe(Func<object, bool> receiveMessageFun, Type receiveMessageType, bool isAutoAck = false);
+
+        /// <summary>
+        /// 订阅消息
+        /// </summary>
+        /// <param name="receiveMessageFun">接收消息回调</param>
         /// <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
         void Subscribe(Func<byte[], bool> receiveMessageFun, bool isAutoAck = false);
     }

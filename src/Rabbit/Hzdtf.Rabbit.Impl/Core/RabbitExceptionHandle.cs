@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Hzdtf.AMQP.Contract.Connection;
+using Hzdtf.Utility.Data;
 
 namespace Hzdtf.Rabbit.Impl.Core
 {
@@ -39,11 +40,17 @@ namespace Hzdtf.Rabbit.Impl.Core
         private IDictionary<IProducer, string> dicExceptionHandleProducers;
 
         /// <summary>
+        /// 字节流序列化
+        /// </summary>
+        private readonly IBytesSerialization bytesSerialization;
+
+        /// <summary>
         /// 构造方法
         /// </summary>
         /// <param name="amqpQueue">AMQP队列信息</param>
         /// <param name="log">日志</param>
-        public RabbitExceptionHandle(AmqpQueueInfo amqpQueue, ILogable log = null)
+        /// <param name="bytesSerialization">字节流序列化</param>
+        public RabbitExceptionHandle(AmqpQueueInfo amqpQueue, ILogable log = null, IBytesSerialization bytesSerialization = null)
         {
             if (amqpQueue == null)
             {
@@ -59,6 +66,7 @@ namespace Hzdtf.Rabbit.Impl.Core
             {
                 this.log = log;
             }
+            this.bytesSerialization = bytesSerialization;
 
             InitExceptionHandle();
         }
@@ -88,7 +96,10 @@ namespace Hzdtf.Rabbit.Impl.Core
             {
                 var conn = exceptionHandleConnections.Where(p => p.HostId == pc.HostId).FirstOrDefault();
                 var producer = conn.CreateProducer(pc.Exchange);
-
+                if (bytesSerialization != null)
+                {
+                    producer.BytesSerialization = bytesSerialization;
+                }
                 dicExceptionHandleProducers.Add(producer, pc.RoutingKey);
             }
         }

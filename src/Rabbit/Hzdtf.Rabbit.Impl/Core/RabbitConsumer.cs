@@ -10,6 +10,7 @@ using Hzdtf.AMQP.Model.Config;
 using System.Linq;
 using Hzdtf.Logger.Contract;
 using Hzdtf.AMQP.Impl;
+using MessagePack;
 
 namespace Hzdtf.Rabbit.Impl.Core
 {
@@ -44,12 +45,25 @@ namespace Hzdtf.Rabbit.Impl.Core
             {
                 if (exceptionHandle == null)
                 {
-                    exceptionHandle = new RabbitExceptionHandle(amqpQueue, log);
+                    exceptionHandle = new RabbitExceptionHandle(amqpQueue, log, BytesSerialization);
                 }
 
                 return exceptionHandle;
             }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("异常处理不能为null");
+                }
+                exceptionHandle = value;
+            }
         }
+
+        /// <summary>
+        /// JSON序列化
+        /// </summary>
+        private readonly static JsonBytesSerialization jsonSerialization = new JsonBytesSerialization();
 
         #endregion
 
@@ -81,40 +95,39 @@ namespace Hzdtf.Rabbit.Impl.Core
         /// <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
         public void Subscribe(Func<string, bool> receiveMessageFun, bool isAutoAck = false)
         {
+            if (receiveMessageFun == null)
+            {
+                return;
+            }
             Subscribe((byte[] x) =>
             {
-                if (receiveMessageFun != null)
+                string msg = null;
+                try
                 {
-                    string msg = null;
-                    try
-                    {
-                        msg = Encoding.UTF8.GetString(x);
-                    }
-                    catch (Exception ex)
-                    {
-                        string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},Encoding.UTF8.GetString发生异常,返回应答:true";
-                        log.ErrorAsync(logMsg, ex, tags: GetLogTags());
+                    msg = Encoding.UTF8.GetString(x);
+                }
+                catch (Exception ex)
+                {
+                    string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},Encoding.UTF8.GetString发生异常,返回应答:true";
+                    log.ErrorAsync(logMsg, ex, tags: GetLogTags());
 
-                        return true;
-                    }
-
-                    try
-                    {
-                        return receiveMessageFun(msg);
-                    }
-                    catch (Exception ex)
-                    {
-                        var busEx = AmqpUtil.BuilderBusinessException(ex, msg, amqpQueue, log, ex.Message);
-                        var isAck = ExceptionHandle.Handle(busEx);
-
-                        string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},业务处理发生异常(返回应答为{isAck})";
-                        log.ErrorAsync(logMsg, ex, tags: GetLogTags());
-
-                        return isAck;
-                    }
+                    return true;
                 }
 
-                return true;
+                try
+                {
+                    return receiveMessageFun(msg);
+                }
+                catch (Exception ex)
+                {
+                    var busEx = AmqpUtil.BuilderBusinessException(ex, msg, amqpQueue, log, ex.Message);
+                    var isAck = ExceptionHandle.Handle(busEx);
+
+                    string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},业务处理发生异常(返回应答为{isAck})";
+                    log.ErrorAsync(logMsg, ex, tags: GetLogTags());
+
+                    return isAck;
+                }
             }, isAutoAck);
         }
 
@@ -126,41 +139,117 @@ namespace Hzdtf.Rabbit.Impl.Core
         /// <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
         public void Subscribe<T>(Func<T, bool> receiveMessageFun, bool isAutoAck = false)
         {
+            if (receiveMessageFun == null)
+            {
+                return;
+            }
             Subscribe((byte[] x) =>
             {
-                if (receiveMessageFun != null)
+                T data = default(T);
+                try
                 {
-                    T data = default(T);
+                    data = BytesSerialization.Deserialize<T>(x);
+                }
+                catch (MessagePackSerializationException)
+                {
+                    // 如果messagepack反序列失败，则使用json反列化
                     try
                     {
-                        data = BytesSerialization.Deserialize<T>(x);
+                        data = jsonSerialization.Deserialize<T>(x);
                     }
                     catch (Exception ex)
                     {
-                        string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},BytesSerialization.Deserialize发生异常(返回应答为true)，认为是不符合业务规范的数据，应删除消息";
+                        string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},jsonSerialization.Deserialize发生异常(返回应答为true)，认为是不符合业务规范的数据，应删除消息";
                         log.ErrorAsync(logMsg, ex, tags: GetLogTags());
 
                         // 反序列异常则返回true
                         return true;
                     }
+                }
+                catch (Exception ex)
+                {
+                    string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},BytesSerialization.Deserialize发生异常(返回应答为true)，认为是不符合业务规范的数据，应删除消息";
+                    log.ErrorAsync(logMsg, ex, tags: GetLogTags());
 
+                    // 反序列异常则返回true
+                    return true;
+                }
+
+                try
+                {
+                    return receiveMessageFun(data);
+                }
+                catch (Exception ex)
+                {
+                    var busEx = AmqpUtil.BuilderBusinessException(ex, data, amqpQueue, log, ex.Message);
+                    var isAck = ExceptionHandle.Handle(busEx);
+
+                    string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},业务处理发生异常(返回应答为{isAck})";
+                    log.ErrorAsync(logMsg, ex, tags: GetLogTags());
+
+                    return isAck;
+                }
+            }, isAutoAck);
+        }
+
+        /// <summary>
+        /// 订阅消息
+        /// </summary>
+        /// <param name="receiveMessageFun">接收消息回调</param>
+        /// <param name="receiveMessageType">接收消息类型</param>
+        /// <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
+        public void Subscribe(Func<object, bool> receiveMessageFun, Type receiveMessageType, bool isAutoAck = false)
+        {
+            if (receiveMessageFun == null)
+            {
+                return;
+            }
+            Subscribe((byte[] x) =>
+            {
+                object data = null;
+                try
+                {
+                    data = BytesSerialization.Deserialize(x, receiveMessageType);
+                }
+                catch (MessagePackSerializationException)
+                {
+                    // 如果messagepack反序列失败，则使用json反列化
                     try
                     {
-                        return receiveMessageFun(data);
+                        data = jsonSerialization.Deserialize(x, receiveMessageType);
                     }
                     catch (Exception ex)
                     {
-                        var busEx = AmqpUtil.BuilderBusinessException(ex, data, amqpQueue, log, ex.Message);
-                        var isAck = ExceptionHandle.Handle(busEx);
-
-                        string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},业务处理发生异常(返回应答为{isAck})";
+                        string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},jsonSerialization.Deserialize发生异常(返回应答为true)，认为是不符合业务规范的数据，应删除消息";
                         log.ErrorAsync(logMsg, ex, tags: GetLogTags());
 
-                        return isAck;
+                        // 反序列异常则返回true
+                        return true;
                     }
                 }
+                catch (Exception ex)
+                {
+                    string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},BytesSerialization.Deserialize发生异常(返回应答为true)，认为是不符合业务规范的数据，应删除消息";
+                    log.ErrorAsync(logMsg, ex, tags: GetLogTags());
 
-                return true;
+                    // 反序列异常则返回true
+                    return true;
+                }
+
+                try
+                {
+                    return receiveMessageFun(data);
+                }
+                catch (Exception ex)
+                {
+                    var busEx = AmqpUtil.BuilderBusinessException(ex, data, amqpQueue, log, ex.Message);
+                    var isAck = ExceptionHandle.Handle(busEx);
+
+                    string logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},业务处理发生异常(返回应答为{isAck})";
+                    log.ErrorAsync(logMsg, ex, tags: GetLogTags());
+
+                    return isAck;
+                }
             }, isAutoAck);
         }
 
@@ -171,27 +260,40 @@ namespace Hzdtf.Rabbit.Impl.Core
         /// <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
         public void Subscribe(Func<byte[], bool> receiveMessageFun, bool isAutoAck = false)
         {
-            EventingBasicConsumer consumer = new EventingBasicConsumer(channel);
+            if (receiveMessageFun == null)
+            {
+                return;
+            }
+            var consumer = new EventingBasicConsumer(channel);
             consumer.Received += (o, e) =>
             {
-                bool isAck = true;
-                if (receiveMessageFun != null && !e.Body.IsEmpty)
+                if (e.Body.IsEmpty)
                 {
-                    string logMsg = $"{GetLogTitleMsg()}.接收到消息";
-                    log.DebugAsync(logMsg, null, tags: GetLogTags());
-
-                    try
+                    // 如果自动回答，则什么都不用干
+                    if (isAutoAck)
                     {
-                        isAck = receiveMessageFun(e.Body.ToArray());
+                        return;
                     }
-                    catch (Exception ex)
-                    {
-                        var busEx = AmqpUtil.BuilderBusinessException(ex, "字节数组数据", amqpQueue, log, ex.Message);
-                        isAck = ExceptionHandle.Handle(busEx);
+                    channel.BasicAck(e.DeliveryTag, false);
+                    return;
+                }
 
-                        logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},业务处理发生异常(返回应答为{isAck})";
-                        log.ErrorAsync(logMsg, ex, tags: GetLogTags());
-                    }
+                bool isAck = true;
+                string logMsg = $"{GetLogTitleMsg()}.接收到消息";
+                log.DebugAsync(logMsg, null, tags: GetLogTags());
+
+                var data = e.Body.ToArray();
+                try
+                {
+                    isAck = receiveMessageFun(data);
+                }
+                catch (Exception ex)
+                {
+                    var busEx = AmqpUtil.BuilderBusinessException(ex, $"字节数组数据转换为Base64:{Convert.ToBase64String(data)}", amqpQueue, log, ex.Message);
+                    isAck = ExceptionHandle.Handle(busEx);
+
+                    logMsg = $"{GetLogTitleMsg()}.输入参数isAutoAck:{isAutoAck},业务处理发生异常(返回应答为{isAck})";
+                    log.ErrorAsync(logMsg, ex, tags: GetLogTags());
                 }
 
                 // 如果自动回答，则什么都不用干

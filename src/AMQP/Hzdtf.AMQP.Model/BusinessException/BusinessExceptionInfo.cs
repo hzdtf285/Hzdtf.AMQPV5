@@ -15,6 +15,28 @@ namespace Hzdtf.AMQP.Model.BusinessException
     public class BusinessExceptionInfo
     {
         /// <summary>
+        /// 异常ID
+        /// </summary>
+        [JsonProperty("exId")]
+        [Key("exId")]
+        public long ExId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 主机ID
+        /// </summary>
+        [JsonProperty("hostId")]
+        [Key("hostId")]
+        public string HostId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// 服务名
         /// </summary>
         [JsonProperty("serviceName")]
@@ -29,7 +51,7 @@ namespace Hzdtf.AMQP.Model.BusinessException
         /// 异常消息
         /// </summary>
         [JsonProperty("exceptionMessage")]
-        [Key("cxceptionMessage")]
+        [Key("exceptionMessage")]
         public string ExceptionMessage
         {
             get;

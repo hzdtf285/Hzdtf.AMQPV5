@@ -4,6 +4,7 @@ using Hzdtf.AMQP.Model.BusinessException;
 using Hzdtf.AMQP.Model.Config;
 using Hzdtf.Logger.Contract;
 using Hzdtf.Utility;
+using Hzdtf.Utility.Model.Identitys;
 using Hzdtf.Utility.Utils;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,11 @@ namespace Hzdtf.AMQP.Impl
         /// 全局配置读取，默认为AmqpConfigCache
         /// </summary>
         public static IAmqpConfigReader GlobalConfigReader = new AmqpConfigCache();
+
+        /// <summary>
+        /// 雪法算法ID
+        /// </summary>
+        private static readonly SnowflakeId snowflakeId = new SnowflakeId();
 
         /// <summary>
         /// 获取配置读取，如果传入为空，则取全局配置读取
@@ -64,6 +70,8 @@ namespace Hzdtf.AMQP.Impl
 
             var busEx = new BusinessExceptionInfo()
             {
+                ExId = snowflakeId.New(),
+                HostId = amqpQueue.HostId,
                 Time = DateTime.Now,
                 ServiceName = string.IsNullOrWhiteSpace(amqpQueue.ExceptionHandle.ServiceName) ? App.AppServiceName : amqpQueue.ExceptionHandle.ServiceName,
                 ExceptionString = ex.ToString(),

@@ -10,6 +10,16 @@
             @ 黄振东
             </summary>
         </member>
+        <member name="P:Hzdtf.AMQP.Model.BusinessException.BusinessExceptionInfo.ExId">
+            <summary>
+            异常ID
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.BusinessException.BusinessExceptionInfo.HostId">
+            <summary>
+            主机ID
+            </summary>
+        </member>
         <member name="P:Hzdtf.AMQP.Model.BusinessException.BusinessExceptionInfo.ServiceName">
             <summary>
             服务名

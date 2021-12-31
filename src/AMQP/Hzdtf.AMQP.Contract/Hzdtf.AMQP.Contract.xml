@@ -108,12 +108,40 @@
             <param name="receiveMessageFun">接收消息回调</param>
             <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
         </member>
+        <member name="M:Hzdtf.AMQP.Contract.Core.IConsumer.Subscribe(System.Func{System.Object,System.Boolean},System.Type,System.Boolean)">
+            <summary>
+            订阅消息
+            </summary>
+            <param name="receiveMessageFun">接收消息回调</param>
+            <param name="receiveMessageType">接收消息类型</param>
+            <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
+        </member>
         <member name="M:Hzdtf.AMQP.Contract.Core.IConsumer.Subscribe(System.Func{System.Byte[],System.Boolean},System.Boolean)">
             <summary>
             订阅消息
             </summary>
             <param name="receiveMessageFun">接收消息回调</param>
             <param name="isAutoAck">是否自动应答，如果为否，则需要在回调里返回true</param>
+        </member>
+        <member name="T:Hzdtf.AMQP.Contract.Core.IConsumerReceiveHandle`1">
+            <summary>
+            消费者接收处理
+            @ 黄振东
+            </summary>
+            <typeparam name="ReceiveDataT">接收数据类型</typeparam>
+        </member>
+        <member name="M:Hzdtf.AMQP.Contract.Core.IConsumerReceiveHandle`1.Handle(`0)">
+            <summary>
+            处理
+            </summary>
+            <param name="receiveData">接收数据</param>
+            <returns>返回信息</returns>
+        </member>
+        <member name="T:Hzdtf.AMQP.Contract.Core.IConsumerReceiveHandle">
+            <summary>
+            消费者接收处理
+            @ 黄振东
+            </summary>
         </member>
         <member name="T:Hzdtf.AMQP.Contract.Core.IExceptionHandle">
             <summary>

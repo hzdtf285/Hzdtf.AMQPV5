@@ -15,6 +15,11 @@
             全局配置读取，默认为AmqpConfigCache
             </summary>
         </member>
+        <member name="F:Hzdtf.AMQP.Impl.AmqpUtil.snowflakeId">
+            <summary>
+            雪法算法ID
+            </summary>
+        </member>
         <member name="M:Hzdtf.AMQP.Impl.AmqpUtil.GetConfigReader(Hzdtf.AMQP.Contract.Config.IAmqpConfigReader)">
             <summary>
             获取配置读取，如果传入为空，则取全局配置读取
@@ -84,7 +89,8 @@
         </member>
         <member name="M:Hzdtf.AMQP.Impl.Config.AmqpConfigJson.#ctor">
             <summary>
-            构造方法，默认读取amqp.json
+            构造方法
+            默认读取AmqpConfigFile配置，如果没有，则读取当前目录的amqp.json
             </summary>
         </member>
         <member name="M:Hzdtf.AMQP.Impl.Config.AmqpConfigJson.#ctor(System.String)">

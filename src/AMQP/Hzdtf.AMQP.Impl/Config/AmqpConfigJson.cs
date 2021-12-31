@@ -1,5 +1,6 @@
 ﻿using Hzdtf.AMQP.Contract.Config;
 using Hzdtf.AMQP.Model.Config;
+using Hzdtf.Utility;
 using Hzdtf.Utility.Attr;
 using System;
 using System.Collections.Generic;
@@ -20,11 +21,20 @@ namespace Hzdtf.AMQP.Impl.Config
         private readonly string configJsonFile;
 
         /// <summary>
-        /// 构造方法，默认读取amqp.json
+        /// 构造方法
+        /// 默认读取AmqpConfigFile配置，如果没有，则读取当前目录的amqp.json
         /// </summary>
         public AmqpConfigJson()
-            : this("amqp.json")
-        { }
+        { 
+            if (App.CurrConfig == null || string.IsNullOrWhiteSpace(App.CurrConfig["AmqpConfigFile"]))
+            {
+                this.configJsonFile = "amqp.json";
+            }
+            else
+            {
+                this.configJsonFile = App.CurrConfig["AmqpConfigFile"];
+            }
+        }
 
         /// <summary>
         /// 构造方法
