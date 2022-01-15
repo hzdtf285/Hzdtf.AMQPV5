@@ -24,5 +24,30 @@
             <param name="options">配置</param>
             <param name="beforeConfigurationBuilder">配置生成前回调</param>
         </member>
+        <member name="T:Microsoft.Extensions.Hosting.ConsumerExtensions">
+            <summary>
+            消费者扩展类
+            @ 黄振东
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.Hosting.ConsumerExtensions.ListenConsumers(Microsoft.Extensions.Hosting.IHostApplicationLifetime,System.IServiceProvider,Hzdtf.AMQP.Contract.Connection.IAmqpConnection,System.Action{Hzdtf.AMQP.Model.Config.ConsumerOptions})">
+            <summary>
+            启动监听消费集合
+            </summary>
+            <param name="lifetime">主机应用生命周期</param>
+            <param name="provider">服务提供者</param>
+            <param name="conn">AMQP连接</param>
+            <param name="options">配置</param>
+            <returns>主机应用生命周期</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.Hosting.ConsumerExtensions.HandleMessage(Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo,System.IServiceProvider,System.Object)">
+            <summary>
+            处理消息
+            </summary>
+            <param name="con">消费者选项配置</param>
+            <param name="provider">服务提供者</param>
+            <param name="msg">消息</param>
+            <returns>返回数据</returns>
+        </member>
     </members>
 </doc>

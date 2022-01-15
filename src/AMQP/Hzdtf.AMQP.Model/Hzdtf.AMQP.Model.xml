@@ -339,6 +339,84 @@
             <param name="queue">队列信息</param>
             <returns>AMQP队列</returns>
         </member>
+        <member name="T:Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo">
+            <summary>
+            消费者选项信息
+            @ 黄振东
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo.Exchange">
+            <summary>
+            交换机
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo.Queue">
+            <summary>
+            队列
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo.Autoack">
+            <summary>
+            是否自动应答，默认为否
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo.ReceivedCallback">
+            <summary>
+            接收到消息回调
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo.ReceiveMessageType">
+            <summary>
+            接收消息类型
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo.BytesSerialization">
+            <summary>
+            字节数组序列化
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptionsInfo.ReturnErrHandleType">
+            <summary>
+            返回错误处理类型，默认为抛出业务异常
+            </summary>
+        </member>
+        <member name="T:Hzdtf.AMQP.Model.Config.ConsumerOptions">
+            <summary>
+            消费者选项配置
+            @ 黄振东
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptions.ConsumerConfigs">
+            <summary>
+            消费者配置数组
+            </summary>
+        </member>
+        <member name="P:Hzdtf.AMQP.Model.Config.ConsumerOptions.DefaultBytesSerialization">
+            <summary>
+            默认字节数组序列化
+            </summary>
+        </member>
+        <member name="T:Hzdtf.AMQP.Model.Config.ReceiveReturnErrHandleType">
+            <summary>
+            接收返回错误方式枚举
+            @ 黄振东
+            </summary>
+        </member>
+        <member name="F:Hzdtf.AMQP.Model.Config.ReceiveReturnErrHandleType.ThrowBusinessException">
+            <summary>
+            抛出业务异常
+            </summary>
+        </member>
+        <member name="F:Hzdtf.AMQP.Model.Config.ReceiveReturnErrHandleType.ReturnTrue">
+            <summary>
+            返回true
+            </summary>
+        </member>
+        <member name="F:Hzdtf.AMQP.Model.Config.ReceiveReturnErrHandleType.ReturnFalse">
+            <summary>
+            返回false
+            </summary>
+        </member>
         <member name="T:Hzdtf.AMQP.Model.Config.RpcClientAssemblyQueueInfo">
             <summary>
             RPC客户端程序集队列信息

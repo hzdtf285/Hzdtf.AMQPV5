@@ -1,5 +1,4 @@
 ﻿using Hzdtf.AMQP.Impl.Connection;
-using Hzdtf.AMQP.Model.Config;
 using Hzdtf.AMQP.Model.Connection;
 using Hzdtf.Utility.Connection;
 using Hzdtf.Utility.Safety;
